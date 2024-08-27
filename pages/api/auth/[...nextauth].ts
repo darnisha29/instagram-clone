@@ -42,8 +42,10 @@ export default NextAuth({
   callbacks: {
     async session({ session, token }) {
       if (token?.id) {
-        session.user = token.id;
+        session.user = token.id;  
       }
+      // console.log("session",session)
+      // console.log("token",token)
       return session;
     },
     async jwt({ token, user }) {

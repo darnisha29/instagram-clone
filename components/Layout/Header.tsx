@@ -2,11 +2,21 @@ import React from "react";
 import Link from "next/link";
 import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
+import { useSession } from "next-auth/react";
 
-const Header = () => {
+const Header: React.FC = () => {
+  const { data: session, status } = useSession();
+  
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  console.log("user here",session?.user)
+
+
   return (
     <Box
-      className=" p-4 w-full flex flex-row items-center "
+      className="p-4 w-full flex flex-row items-center"
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -15,57 +25,35 @@ const Header = () => {
         height: "20",
         pt: "10px",
         boxShadow: "1px 5px 5px #e0dcdc",
+        zIndex:'999999'
       }}
     >
-      <img alt=" logo" src="/logos.png" width={150} />
+      <img alt="logo" src="/logos.png" width={150} />
       <Box sx={{ display: "flex", gap: "20px" }}>
-        <Typography component="span" sx={{ textDecoration: "none" }}>
-          <Link href="/auth/SignUp">SignUp</Link>
-        </Typography>
-        <Typography >
-        <Link href="/auth/login">SignIn</Link>
-          </Typography>
-        <Typography>
-        <Link href="/profile">Profile</Link>
-        </Typography>
+        {session ? (
+          <>
+            <Typography component="span" sx={{ textDecoration: "none" }}>
+              <Link href="/profile">Profile</Link>
+            </Typography>
+            <Typography>
+              <Link href="/createPost">Create Post</Link>
+            </Typography>
+            <Typography>
+              <Link href="/api/auth/signout">Logout</Link>
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography component="span" sx={{ textDecoration: "none" }}>
+              <Link href="/auth/SignUp">SignUp</Link>
+            </Typography>
+            <Typography>
+              <Link href="/auth/login">SignIn</Link>
+            </Typography>
+          </>
+        )}
       </Box>
     </Box>
-    // <header className="text-gray-600 body-font">
-    //   <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-    //     {/* <Link href="/" className="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
-    //       <svg
-    //         className="w-10 h-10 text-white p-2 bg-blue-500 rounded-full"
-    //         fill="none"
-    //         stroke="currentColor"
-    //         viewBox="0 0 24 24"
-    //         xmlns="http://www.w3.org/2000/svg"
-    //       >
-    //         <path
-    //           strokeLinecap="round"
-    //           strokeLinejoin="round"
-    //           strokeWidth="2"
-    //           d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-    //         ></path>
-    //       </svg>
-    //     </Link> */}
-    //     <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
-    //       { (
-    //         <div className="flex items-center space-x-5">
-    //           <Link href="/favorites" className="inline-flex items-center border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
-    //               My Favorites
-    //           </Link>
-    //           <Link href="/api/auth/logout"  className="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
-    //               Logout
-    //           </Link>
-    //           <img
-    //             alt="profile"
-    //             src="/logo.png"
-    //           />
-    //         </div>
-    //       ) }
-    //     </nav>
-    //   </div>
-    // </header>
   );
 };
 

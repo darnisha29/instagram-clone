@@ -1,8 +1,9 @@
+import CardPage from "@/components/Layout/card";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 
 const Home = () => {
-  return <div>Welcome to the Home Page!</div>;
+  return <CardPage posts={[]}/>;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

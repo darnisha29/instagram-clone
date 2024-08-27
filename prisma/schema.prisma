@@ -19,6 +19,7 @@ model user {
   password String
   name String?
   Sessions Session[]
+  posts posts[]
 }
 
 model Session {
@@ -26,4 +27,13 @@ model Session {
   sessionToken String @unique
   userId String
   user user @relation(fields: [userId],references: [id])
+}
+
+model posts {
+  id  String @id @default(cuid())
+  title String 
+  body String
+  photo String?
+  postedBy  user    @relation(fields: [userId], references: [id])
+  userId    String
 }
