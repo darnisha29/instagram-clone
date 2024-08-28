@@ -8,8 +8,6 @@ export const typeDefs = gql`
     posts: [Post!]!
   }
 
-  
-
   type Post {
     id: ID!
     title: String!
@@ -19,6 +17,10 @@ export const typeDefs = gql`
   }
   type Query {
     login(email: String!, password: String!): User
+  }
+
+  type Query {
+    getPostsByUser(userId: ID!): [Post!]!
   }
 
   type Query {

@@ -1,130 +1,4 @@
-// import React, { useState, useEffect } from "react";
-// import { Box, Button, TextField, Typography, IconButton } from "@mui/material";
-// // import { toast } from 'react-toastify';
-// // import { useNavigate } from "react-router-dom";
-// import ImageIcon from '@mui/icons-material/Image';
-
-// const Createpost: React.FC = () => {
-//   const [body, setBody] = useState<string>("");
-//   const [image, setImage] = useState<File | null>(null);
-//   const [url, setUrl] = useState<string>("");
-// //   const navigate = useNavigate();
-
-//   // Toast functions
-// //   const notifyA = (msg: string) => toast.error(msg);
-// //   const notifyB = (msg: string) => toast.success(msg);
-
-//   useEffect(() => {
-//     if (url) {
-//       // Saving post to MongoDB
-//       fetch("http://localhost:5000/createPost", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Authorization": "Bearer " + localStorage.getItem("jwt"),
-//         },
-//         body: JSON.stringify({
-//           body,
-//           pic: url,
-//         }),
-//       })
-//         .then(res => res.json())
-//         .then(data => {
-//           if (data.error) {
-//             // notifyA(data.error);
-//           } else {
-//             // notifyB("Successfully Posted");
-//             // navigate("/");
-//           }
-//         })
-//         .catch(err => console.log(err));
-//     }
-//   }, [url]);
-
-//   const postDetails = () => {
-//     if (!image) return;
-
-//     const data = new FormData();
-//     data.append("file", image);
-//     data.append("upload_preset", "insta-clone");
-//     data.append("cloud_name", "cantacloud2");
-
-//     fetch("https://api.cloudinary.com/v1_1/cantacloud2/image/upload", {
-//       method: "POST",
-//       body: data,
-//     })
-//       .then(res => res.json())
-//       .then(data => setUrl(data.url))
-//       .catch(err => console.log(err));
-//   };
-
-//   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = event.target.files ? event.target.files[0] : null;
-//     if (file) {
-//       setImage(file);
-//       const output = document.getElementById("output") as HTMLImageElement;
-//       output.src = URL.createObjectURL(file);
-//       output.onload = () => URL.revokeObjectURL(output.src); // Free memory
-//     }
-//   };
-
-//   return (
-//     <Box sx={{width:'100vw',display:'flex' ,flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-//     <Box className="createPost" sx={{ padding: 2 , width:'500px' }}>
-//       <Box className="post-header" sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-//         <Typography variant="h6">Create New Post</Typography>
-//         <Button variant="contained" color="primary" onClick={postDetails}>Share</Button>
-//       </Box>
-
-//       <Box className="main-div" sx={{ mb: 2,width:'200px' }}>
-//         <img
-//           id="output"
-//           src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-512.png"
-//           alt="Preview"
-//           style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-//         />
-//         <input
-//           type="file"
-//           accept="image/*"
-//           onChange={handleFileChange}
-//           style={{ display: 'none' }}
-//           id="fileInput"
-//         />
-//         <label htmlFor="fileInput">
-//           <IconButton color="primary" component="span">
-//             <ImageIcon />
-//           </IconButton>
-//         </label>
-//       </Box>
-
-//       <Box className="details">
-//         <Box className="card-header" sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-//           <img
-//             src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGVyc29ufGVufDB8MnwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-//             alt="Profile"
-//             style={{ width: 50, height: 50, borderRadius: '50%', objectFit: 'cover', marginRight: 1 }}
-//           />
-//           <Typography variant="h6">Ramesh</Typography>
-//         </Box>
-//         <TextField
-//           multiline
-//           rows={4}
-//           value={body}
-//           onChange={(e) => setBody(e.target.value)}
-//           placeholder="Write a caption...."
-//           fullWidth
-//           variant="outlined"
-//         />
-//       </Box>
-//     </Box>
-//     </Box>
-//   );
-// };
-
-// export default Createpost;
-
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Button, TextField, Typography, IconButton } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import { useMutation, gql } from "@apollo/client";
@@ -150,34 +24,14 @@ const Createpost: React.FC = () => {
   const [url, setUrl] = useState<string>("");
   const [createPost] = useMutation(CREATE_POST_MUTATION);
     
-  useEffect(() => {
-    if (url) {
-      // Saving post to GraphQL
-      createPost({
-        variables: {
-          body,
-          photo: url,
-          userId: "cm0bx779b00009b1m9wkharbl",
-          title:"post title"
-        },
-      })
-        .then(({ data }) => {
-          if (data) {
-            console.log("Successfully Posted:", data);
-            // notifyB("Successfully Posted");
-            // navigate("/");
-          }
-        })
-        .catch((error) => {
-          console.error("Error creating post:", error);
-          // notifyA(error.message);
-        });
-    }
-  }, [url, body, createPost]);
-
   const postDetails = () => {
-    if (!image) return;
+    if (!image) {
+      // You can add some validation to check if an image is selected
+      console.error("No image selected");
+      return;
+    }
 
+    // First, upload the image to Cloudinary
     const data = new FormData();
     data.append("file", image);
     data.append("upload_preset", "insta-clone");
@@ -187,10 +41,31 @@ const Createpost: React.FC = () => {
       method: "POST",
       body: data,
     })
-      .then(res => res.json())
-      .then(data => setUrl(data.url))
-      .catch(err => console.log(err));
+    .then(res => res.json())
+    .then(data => {
+      const uploadedUrl = data.url;
 
+      // After the image is successfully uploaded, create the post in the database
+      createPost({
+        variables: {
+          body,
+          photo: uploadedUrl,
+          userId: "cm0bx779b00009b1m9wkharbl",
+          title: "post title"
+        },
+      })
+      .then(({ data }) => {
+        if (data) {
+          console.log("Successfully Posted:", data);
+          // Add any additional logic after successful post creation, e.g., navigation or notifications
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating post:", error);
+        // Handle any errors during post creation
+      });
+    })
+    .catch(err => console.log(err));
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,7 +76,6 @@ const Createpost: React.FC = () => {
       output.src = URL.createObjectURL(file);
       output.onload = () => URL.revokeObjectURL(output.src); // Free memory
     }
-    setUrl("https://unsplash.com/photos/woman-near-green-leafed-plants-R8bNESnnKR8")
   };
 
   return (
@@ -258,3 +132,8 @@ const Createpost: React.FC = () => {
 };
 
 export default Createpost;
+
+
+
+
+

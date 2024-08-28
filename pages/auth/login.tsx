@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn ,useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, TextField, Typography, Container } from "@mui/material";
+import { setUser } from "@/store/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/store";
+// import { useAppDispatch } from "@/store/store";
+
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>()
+  const {data:session} = useSession()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,6 +33,8 @@ const Login = () => {
     if (result?.error) {
       setError(result.error);
     } else {
+      const ID =  String(session?.user)  
+       dispatch(setUser({email:formData.email, userId: ID}))
       router.push("/");
     }
   };

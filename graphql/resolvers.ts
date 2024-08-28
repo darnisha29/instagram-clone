@@ -1,25 +1,3 @@
-// import { PrismaClient } from "@prisma/client";
-// import { compare } from "bcryptjs";
-
-// const prisma = new PrismaClient();
-
-// export const resolvers = {
-//   Query: {
-//     async login(_: any, { email, password }: { email: string; password: string }) {
-//       const user = await prisma.user.findUnique({
-//         where: { email },
-//       });
-
-//       if (user && (await compare(password, user.password))) {
-//         return user;
-//       }
-
-//       throw new Error("Invalid email or password");
-//     },
-//   },
-// };
-
-
 import { Context } from "@apollo/client";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcryptjs";
@@ -49,6 +27,19 @@ export const resolvers = {
         throw new Error("Failed to fetch posts");
       }
     },
+    async getPostsByUser(_: any, { userId }: { userId: string }) {
+      try {
+        const userPosts = await prisma.posts.findMany({
+          where: { userId },
+        });
+
+        return userPosts;
+      } catch (error) {
+        console.error("Error fetching user posts:", error);
+        throw new Error("Failed to fetch user posts");
+      }
+    },
+    
   },
 
   Mutation: {

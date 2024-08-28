@@ -24,7 +24,6 @@ export default NextAuth({
         const user = await prisma.user.findUnique({
           where: { email },
         });
-        
 
         const isValidPassword = user && await compare(password, user.password);
         if (user && isValidPassword) {
