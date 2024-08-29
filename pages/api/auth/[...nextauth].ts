@@ -9,12 +9,12 @@ const prisma = new PrismaClient();
 export default NextAuth({
   providers: [
     CredentialsProvider({
-      // Define the credentials property
+
       credentials: {
         email: { label: "Email", type: "text", placeholder: "email@example.com" },
         password: { label: "Password", type: "password" },
       },
-      // Authorize method
+
       async authorize(credentials) {
         if (!credentials) {
           return null;
@@ -41,10 +41,9 @@ export default NextAuth({
   callbacks: {
     async session({ session, token }) {
       if (token?.id) {
-        session.user = token.id;  
+        session.user = token.id;
       }
-      // console.log("session",session)
-      // console.log("token",token)
+
       return session;
     },
     async jwt({ token, user }) {

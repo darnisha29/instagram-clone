@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signIn ,useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, TextField, Typography, Container } from "@mui/material";
 import { setUser } from "@/store/slices/authSlice";
@@ -13,7 +13,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>()
-  const {data:session} = useSession()
+  const { data: session } = useSession()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,20 +33,20 @@ const Login = () => {
     if (result?.error) {
       setError(result.error);
     } else {
-      const ID =  String(session?.user)  
-       dispatch(setUser({email:formData.email, userId: ID}))
+      const ID = String(session?.user)
+      dispatch(setUser({ email: formData.email, userId: ID }))
       router.push("/");
     }
   };
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        height: "100vh", 
-        display: "flex", 
-        flexDirection: 'column', 
-        justifyContent: "center", 
+    <Container
+      maxWidth="sm"
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: 'column',
+        justifyContent: "center",
         alignItems: 'center'
       }}
     >

@@ -27,6 +27,7 @@ export const resolvers = {
         throw new Error("Failed to fetch posts");
       }
     },
+
     async getPostsByUser(_: any, { userId }: { userId: string }) {
       try {
         const userPosts = await prisma.posts.findMany({
@@ -39,7 +40,6 @@ export const resolvers = {
         throw new Error("Failed to fetch user posts");
       }
     },
-    
   },
 
   Mutation: {
@@ -47,7 +47,7 @@ export const resolvers = {
       _: any,
       { title, body, photo, userId }: { title: string; body: string; photo?: string; userId: string }
     ) {
-      console.log("here is the data",{ title, body, photo, userId} );
+      console.log("here is the data", { title, body, photo, userId });
       try {
         const userExists = await prisma.user.findUnique({
           where: { id: userId },
@@ -63,6 +63,7 @@ export const resolvers = {
             body,
             photo,
             userId,
+            likes: [], // Initialize with an empty array
           },
         });
 
@@ -104,6 +105,44 @@ export const resolvers = {
       } catch (error) {
         console.error("Error deleting post:", error);
         throw new Error("Failed to delete post");
+      }
+    },
+
+    async likePost(_: any, { postId, userId }: { postId: string; userId: string }) {
+      try {
+        const post = await prisma.posts.update({
+          where: { id: postId },
+          data: {
+            likes: {
+              push: userId, // Add the user's ID to the likes array
+            },
+          },
+        });
+
+        return post;
+      } catch (error) {
+        console.error("Error liking post:", error);
+        throw new Error("Failed to like post");
+      }
+    },
+
+    async unlikePost(_: any, { postId, userId }: { postId: string; userId: string }) {
+      try {
+        const post = await prisma.posts.update({
+          where: { id: postId },
+          data: {
+            likes: {
+              set: (await prisma.posts.findUnique({ where: { id: postId } }))?.likes.filter(
+                (id) => id !== userId
+              ) || [],
+            },
+          },
+        });
+
+        return post;
+      } catch (error) {
+        console.error("Error unliking post:", error);
+        throw new Error("Failed to unlike post");
       }
     },
   },

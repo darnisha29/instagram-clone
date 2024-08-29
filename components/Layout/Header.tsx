@@ -11,9 +11,6 @@ const Header: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  console.log("user here",session?.user)
-
-
   return (
     <Box
       className="p-4 w-full flex flex-row items-center"

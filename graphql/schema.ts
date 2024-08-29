@@ -14,6 +14,7 @@ export const typeDefs = gql`
     body: String!
     photo: String
     postedBy: User!
+    likes: [ID!]!  
   }
   type Query {
     login(email: String!, password: String!): User
@@ -41,5 +42,13 @@ export const typeDefs = gql`
   }
   type Mutation {
     deletePost(id: ID!): Post!
+  }
+
+  type Mutation {
+    likePost(postId: ID!, userId: ID!): Post!  
+  }
+
+  type Mutaion {
+    unlikePost(postId: ID!, userId: ID!): Post!  
   }
 `;

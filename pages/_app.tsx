@@ -9,8 +9,8 @@ import client from '@/lib/apollo';
 import Layout from '@/components/Layout';
 import { SessionProvider } from 'next-auth/react';
 import { Provider as ReduxProvider } from 'react-redux';
-import { store } from '@/store/store';
-
+import { store, persistor } from '@/store/store';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,10 +20,12 @@ export default function App({ Component, pageProps }: AppProps) {
       <ApolloProvider client={client}>
         <SessionProvider session={pageProps.session}>
           <ReduxProvider store={store}>
-            <Layout>
-              <CssBaseline />
-              <Component {...pageProps} />
-            </Layout>
+            <PersistGate loading={null} persistor={persistor}>
+              <Layout>
+                <CssBaseline />
+                <Component {...pageProps} />
+              </Layout>
+            </PersistGate>
           </ReduxProvider>
         </SessionProvider>
       </ApolloProvider>
