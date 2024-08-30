@@ -6,6 +6,7 @@ export const typeDefs = gql`
     email: String!
     name: String
     posts: [Post!]!
+    comments: [Comment!]! 
   }
 
   type Post {
@@ -14,8 +15,16 @@ export const typeDefs = gql`
     body: String!
     photo: String
     postedBy: User!
-    likes: [ID!]!  
+    likes: [ID!]!
+    comments: [Comment!]!   
   }
+
+  type Comment {
+  id: ID!
+  comment: String!
+  post: Post!
+  postedBy: User!
+}
   type Query {
     login(email: String!, password: String!): User
   }
@@ -26,6 +35,9 @@ export const typeDefs = gql`
 
   type Query {
     posts: [Post!]!
+  }
+  type Query {
+    getCommentsByPost(postId: ID!): [Comment!]!
   }
 
   type Query {
@@ -50,5 +62,11 @@ export const typeDefs = gql`
 
   type Mutaion {
     unlikePost(postId: ID!, userId: ID!): Post! 
+  }
+  type Mutation {
+    createComment(postId: ID!, userId: ID!, comment: String!): Comment!
+  }
+  type Mutation {
+    deleteComment(id: ID!): Comment!
   }
 `;

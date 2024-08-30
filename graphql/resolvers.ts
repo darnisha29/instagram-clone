@@ -20,7 +20,15 @@ export const resolvers = {
 
     async posts(_: any, __: any) {
       try {
-        const allPosts = await prisma.posts.findMany();
+        const allPosts = await prisma.posts.findMany({
+          include: {
+            comments: {
+              include: {
+                postedBy: true,
+              },
+            },
+          },
+        });
         return allPosts;
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -32,12 +40,35 @@ export const resolvers = {
       try {
         const userPosts = await prisma.posts.findMany({
           where: { userId },
+          include: {
+            comments: {
+              include: {
+                postedBy: true,
+              },
+            },
+          },
         });
 
         return userPosts;
       } catch (error) {
         console.error("Error fetching user posts:", error);
         throw new Error("Failed to fetch user posts");
+      }
+    },
+
+    async getCommentsByPost(_: any, { postId }: { postId: string }) {
+      try {
+        const comments = await prisma.comments.findMany({
+          where: { postId },
+          include: {
+            postedBy: true,
+          },
+        });
+
+        return comments;
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+        throw new Error("Failed to fetch comments");
       }
     },
   },
@@ -63,7 +94,7 @@ export const resolvers = {
             body,
             photo,
             userId,
-            likes: [], 
+            likes: [],
           },
         });
 
@@ -108,56 +139,82 @@ export const resolvers = {
       }
     },
 
-  
-    likePost: async (_: any, { postId, userId }: any) => {
+    async likePost(_: any, { postId, userId }: { postId: string; userId: string }) {
       if (!userId) throw new Error("User not authenticated");
-    
+
       const post = await prisma.posts.findUnique({ where: { id: postId } });
       if (!post) throw new Error("Post not found");
-    
+
       const alreadyLiked = post.likes.includes(userId);
       const updatedLikes = alreadyLiked
         ? post.likes.filter((id: string) => id !== userId)
         : [...post.likes, userId];
-    
-      console.log("Updated Likes:", updatedLikes); 
-    
+
+      console.log("Updated Likes:", updatedLikes);
+
       // Ensure no undefined values
       const filteredLikes = updatedLikes.filter((id) => id);
-    
+
       return prisma.posts.update({
         where: { id: postId },
         data: { likes: filteredLikes },
       });
     },
-    
-    
-    
 
-    // async unlikePost(_: any, { postId, userId }: { postId: string; userId: string }) {
-    //   try {
-    //     const post = await prisma.posts.update({
-    //       where: { id: postId },
-    //       data: {
-    //         likes: {
-    //           set: (await prisma.posts.findUnique({ where: { id: postId } }))?.likes.filter(
-    //             (id) => id !== userId
-    //           ) || [],
-    //         },
-    //       },
-    //     });
+    async createComment(
+      _: any,
+      { postId, userId, comment }: { postId: string; userId: string; comment: string }
+    ) {
+      try {
+        const postExists = await prisma.posts.findUnique({
+          where: { id: postId },
+        });
+    
+        if (!postExists) {
+          throw new Error("Post does not exist");
+        }
+    
+        const newComment = await prisma.comments.create({
+          data: {
+            comment,
+            postId,
+            userId,
+          },
+          include: {
+            postedBy: true,
+          },
+        });
+    
+        return newComment;
+      } catch (error) {
+        console.error("Error creating comment:", error);
+        throw new Error("Failed to create comment");
+      }
+    },
+    
+    async deleteComment(_: any, { id }: { id: string }) {
+      try {
+        const deletedComment = await prisma.comments.delete({
+          where: { id },
+        });
 
-    //     return post;
-    //   } catch (error) {
-    //     console.error("Error unliking post:", error);
-    //     throw new Error("Failed to unlike post");
-    //   }
-    // },
+        return deletedComment;
+      } catch (error) {
+        console.error("Error deleting comment:", error);
+        throw new Error("Failed to delete comment");
+      }
+    },
   },
 
   User: {
     async posts(parent: any) {
       return prisma.posts.findMany({
+        where: { userId: parent.id },
+      });
+    },
+
+    async comments(parent: any) {
+      return prisma.comments.findMany({
         where: { userId: parent.id },
       });
     },
@@ -167,6 +224,29 @@ export const resolvers = {
     async postedBy(parent: any) {
       return prisma.user.findUnique({
         where: { id: parent.userId },
+      });
+    },
+
+    async comments(parent: any) {
+      return prisma.comments.findMany({
+        where: { postId: parent.id },
+        include: {
+          postedBy: true,
+        },
+      });
+    },
+  },
+
+  Comment: {
+    async postedBy(parent: any) {
+      return prisma.user.findUnique({
+        where: { id: parent.userId },
+      });
+    },
+
+    async post(parent: any) {
+      return prisma.posts.findUnique({
+        where: { id: parent.postId },
       });
     },
   },
