@@ -36,5 +36,5 @@ model posts {
   photo String?
   postedBy  user    @relation(fields: [userId], references: [id])
   userId    String
-  likes String[] // Array of user IDs that liked the post
+  likes String[] 
 }

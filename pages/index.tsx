@@ -3,7 +3,7 @@ import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 
 const Home = () => {
-  return <CardPage posts={[]} />;
+  return <CardPage  />;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

@@ -25,27 +25,29 @@
 // export type RootState = ReturnType<typeof store.getState>;
 
 
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import authReducer from "./slices/authSlice";
-import postReducer from "./slices/postSlice";
-import apolloClient from "@/lib/apollo";
+import authReducer from "@/store/slices/authSlice"
+import postReducer from "@/store/slices/postSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
+import apolloClient from "@/lib/apollo";
 
+// Configuration for redux-persist
+const persistConfig = {
+  key: 'root',
+  storage,
+  // stateReconciler: autoMergeLevel2,
+};
 
 const rootReducer = combineReducers({
   auth: authReducer,
   posts: postReducer,
-
 });
 
-// Configuration for redux-persist
-const persistConfig = {
-  key: "root",
-  storage,
-};
+export type RootState = ReturnType<typeof rootReducer>;
 
 // Persist the root reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -57,14 +59,14 @@ export const store = configureStore({
       thunk: {
         extraArgument: apolloClient,
       },
-      // serializableCheck: {
-      //   // Ignore these action types for redux-persist
-      //   ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
-      // },
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredPaths: ["apolloClient"],
+      },
     }),
 });
 
 export const persistor = persistStore(store);
 
 export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+

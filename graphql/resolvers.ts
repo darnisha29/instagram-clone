@@ -63,7 +63,7 @@ export const resolvers = {
             body,
             photo,
             userId,
-            likes: [], // Initialize with an empty array
+            likes: [], 
           },
         });
 
@@ -108,43 +108,51 @@ export const resolvers = {
       }
     },
 
-    async likePost(_: any, { postId, userId }: { postId: string; userId: string }) {
-      try {
-        const post = await prisma.posts.update({
-          where: { id: postId },
-          data: {
-            likes: {
-              push: userId, // Add the user's ID to the likes array
-            },
-          },
-        });
-
-        return post;
-      } catch (error) {
-        console.error("Error liking post:", error);
-        throw new Error("Failed to like post");
-      }
+  
+    likePost: async (_: any, { postId, userId }: any) => {
+      if (!userId) throw new Error("User not authenticated");
+    
+      const post = await prisma.posts.findUnique({ where: { id: postId } });
+      if (!post) throw new Error("Post not found");
+    
+      const alreadyLiked = post.likes.includes(userId);
+      const updatedLikes = alreadyLiked
+        ? post.likes.filter((id: string) => id !== userId)
+        : [...post.likes, userId];
+    
+      console.log("Updated Likes:", updatedLikes); 
+    
+      // Ensure no undefined values
+      const filteredLikes = updatedLikes.filter((id) => id);
+    
+      return prisma.posts.update({
+        where: { id: postId },
+        data: { likes: filteredLikes },
+      });
     },
+    
+    
+    
 
-    async unlikePost(_: any, { postId, userId }: { postId: string; userId: string }) {
-      try {
-        const post = await prisma.posts.update({
-          where: { id: postId },
-          data: {
-            likes: {
-              set: (await prisma.posts.findUnique({ where: { id: postId } }))?.likes.filter(
-                (id) => id !== userId
-              ) || [],
-            },
-          },
-        });
+    // async unlikePost(_: any, { postId, userId }: { postId: string; userId: string }) {
+    //   try {
+    //     const post = await prisma.posts.update({
+    //       where: { id: postId },
+    //       data: {
+    //         likes: {
+    //           set: (await prisma.posts.findUnique({ where: { id: postId } }))?.likes.filter(
+    //             (id) => id !== userId
+    //           ) || [],
+    //         },
+    //       },
+    //     });
 
-        return post;
-      } catch (error) {
-        console.error("Error unliking post:", error);
-        throw new Error("Failed to unlike post");
-      }
-    },
+    //     return post;
+    //   } catch (error) {
+    //     console.error("Error unliking post:", error);
+    //     throw new Error("Failed to unlike post");
+    //   }
+    // },
   },
 
   User: {

@@ -49,6 +49,6 @@ export const typeDefs = gql`
   }
 
   type Mutaion {
-    unlikePost(postId: ID!, userId: ID!): Post!  
+    unlikePost(postId: ID!, userId: ID!): Post! 
   }
 `;
